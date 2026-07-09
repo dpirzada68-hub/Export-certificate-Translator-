@@ -6,27 +6,84 @@
     <title>Danish Documents Services — Export Certificate Translator</title>
     
     <!-- External Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <!-- External Libraries: html2canvas, jsPDF, and PDF.js (New: needed for converting PDFs to images for Groq) -->
+    <!-- External Libraries: html2canvas, jsPDF, and PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .cert-preview { font-family: 'IBM Plex Mono', monospace; background: white; padding: 40px; color: black; font-size: 11.5px; width: 100%; min-width: 900px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-        .cert-title-font { font-family: 'Oswald', sans-serif; }
-        .cert-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 0; table-layout: fixed; }
-        .cert-table th, .cert-table td { border: 1px solid #000; padding: 6px 8px; vertical-align: top; overflow: hidden; }
-        .cert-label { font-size: 9px; color: #4b5563; text-transform: uppercase; display: block; margin-bottom: 3px; font-family: 'Inter', sans-serif; letter-spacing: 0.05em; }
-        .cert-input { width: 100%; border: none; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; outline: none; color: #000; padding: 0; line-height: 1.4; }
-        .cert-input:focus { background-color: #fef08a; }
-        .no-border-top { border-top: none !important; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+        }
+        /* Document Styles mimicking Certificate structure */
+        .cert-preview { 
+            font-family: 'IBM Plex Mono', monospace; 
+            background: white; 
+            padding: 45px; 
+            color: black; 
+            font-size: 11px; 
+            width: 100%; 
+            min-width: 950px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+            border-radius: 8px;
+        }
+        .cert-title-font { 
+            font-family: 'Oswald', sans-serif; 
+        }
+        .cert-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            border: 2px solid #000; 
+            margin-bottom: 0; 
+            table-layout: fixed; 
+        }
+        .cert-table th, .cert-table td { 
+            border: 1px solid #000; 
+            padding: 6px 8px; 
+            vertical-align: top; 
+            overflow: hidden; 
+        }
+        .cert-label { 
+            font-size: 8.5px; 
+            color: #374151; 
+            text-transform: uppercase; 
+            display: block; 
+            margin-bottom: 2px; 
+            font-family: 'Inter', sans-serif; 
+            letter-spacing: 0.03em; 
+            font-weight: 700;
+        }
+        .cert-input { 
+            width: 100%; 
+            border: none; 
+            background: transparent; 
+            font-family: 'IBM Plex Mono', monospace; 
+            font-size: 11.5px; 
+            font-weight: 700; 
+            outline: none; 
+            color: #000; 
+            padding: 0; 
+            line-height: 1.4; 
+        }
+        .cert-input:focus { 
+            background-color: #fef08a; 
+            border-radius: 2px;
+        }
+        .no-border-top { 
+            border-top: none !important; 
+        }
         
-        /* Smooth fade-ins */
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Smooth transitions */
+        .fade-in { 
+            animation: fadeIn 0.3s ease-in-out forwards; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(8px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,48 +92,67 @@
 <body class="text-slate-800 min-h-screen flex flex-col">
 
     <!-- Navbar -->
-    <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b-4 border-amber-600">
+    <nav class="bg-slate-950 text-white px-6 py-4 flex flex-col sm:flex-row items-center justify-between border-b-4 border-amber-600 gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full border-2 border-amber-500 flex items-center justify-center font-bold font-['Oswald'] text-amber-500 tracking-widest bg-slate-800">
+            <div class="w-12 h-12 rounded-full border-2 border-amber-500 flex items-center justify-center font-bold font-['Oswald'] text-amber-500 tracking-widest bg-slate-900 shadow-md">
                 DDS
             </div>
             <div>
-                <h1 class="font-['Oswald'] text-2xl uppercase tracking-wide font-bold">Danish Documents Services</h1>
-                <p class="font-['IBM_Plex_Mono'] text-xs text-amber-400 tracking-wider">Used Car Exporting Tools &amp; Office Solutions</p>
+                <h1 class="font-['Oswald'] text-2xl uppercase tracking-wide font-extrabold text-white">Danish Documents Services</h1>
+                <p class="font-['IBM_Plex_Mono'] text-[11px] text-amber-400 tracking-wider">Used Car Exporting Tools &amp; High-Fidelity Office Solutions</p>
             </div>
         </div>
-        <div class="hidden md:block text-right font-['IBM_Plex_Mono'] text-xs text-slate-400 leading-relaxed">
-            JP → EN CERTIFICATE DESK<br>輸出抹消仮登録証明書 TRANSLATOR
+        <div class="text-center sm:text-right font-['IBM_Plex_Mono'] text-[11px] text-slate-400 leading-relaxed bg-slate-900/50 p-2 rounded border border-slate-800">
+            JP → EN ULTRA-ACCURACY TRANSLATOR<br>輸出抹消仮登録証明書 · EXPORT CERTIFICATE GENERATOR
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         
-        <!-- Left Panel: Intake -->
+        <!-- Left Panel: Intake Controls -->
         <section class="xl:col-span-4 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div class="p-6 border-b border-slate-100 bg-slate-50">
-                <h2 class="font-['Oswald'] text-xl uppercase tracking-wide font-bold text-slate-800">Document Intake</h2>
-                <p class="text-sm text-slate-500 mt-1">Upload the Japanese export certificate (輸出抹消仮登録証明書). PDF, JPG, or PNG.</p>
+            <div class="p-5 border-b border-slate-100 bg-slate-50/80">
+                <h2 class="font-['Oswald'] text-lg uppercase tracking-wider font-bold text-slate-800 flex items-center justify-between">
+                    <span>Document Intake</span>
+                    <span class="text-xs font-normal text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-mono">v3.0 Ultra</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">Upload your Japanese Export Certificate (輸出抹消仮登録証明書) for high-accuracy phonetic extraction.</p>
             </div>
 
-            <div class="p-6 flex-1 flex flex-col gap-5">
+            <div class="p-5 flex-1 flex flex-col gap-4">
                 
+                <!-- Quick Demo Option -->
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3.5 space-y-2">
+                    <p class="text-xs text-amber-800 font-bold mb-1">💡 Pre-compiled English Translation Samples:</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="demoBtnA" class="bg-amber-600 hover:bg-amber-700 text-white font-['Oswald'] uppercase tracking-wider text-[10px] font-bold py-2 px-1 rounded transition-all shadow-sm flex items-center justify-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Sample A (NAC Co.)
+                        </button>
+                        <button id="demoBtnB" class="bg-slate-900 hover:bg-slate-800 text-white font-['Oswald'] uppercase tracking-wider text-[10px] font-bold py-2 px-1 rounded transition-all shadow-sm flex items-center justify-center gap-1">
+                            <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Sample B (Nobuco)
+                        </button>
+                    </div>
+                    <p class="text-[9px] text-slate-500 leading-tight">Sample B matches the specific Hiragana transliteration (`599 Se 2980`) and translated owner name (`Nobuco Japan Co., Ltd.`) from image_c6827c.png.</p>
+                </div>
+
                 <!-- Dropzone -->
-                <div id="dropzone" class="border-2 border-dashed border-amber-300 bg-amber-50/30 rounded-lg p-8 text-center cursor-pointer hover:bg-amber-50 hover:border-amber-500 transition-colors group flex flex-col items-center justify-center">
-                    <svg class="w-10 h-10 mx-auto text-amber-500 mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    <p class="text-sm font-semibold text-slate-700">Drop file here or click to browse</p>
-                    <p class="text-xs text-slate-500 mt-1">PDF, JPG, PNG up to 15MB</p>
+                <div id="dropzone" class="border-2 border-dashed border-slate-300 bg-slate-50/50 rounded-lg p-6 text-center cursor-pointer hover:bg-amber-50/20 hover:border-amber-400 transition-colors group flex flex-col items-center justify-center">
+                    <svg class="w-10 h-10 mx-auto text-slate-400 group-hover:text-amber-500 mb-2 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <p class="text-xs font-bold text-slate-700">Drag &amp; drop document or click</p>
+                    <p class="text-[10px] text-slate-400 mt-1">PDF, JPG, PNG up to 15MB</p>
                 </div>
                 <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
 
                 <!-- File Pill (Hidden initially) -->
                 <div id="filepill" class="items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-3 fade-in hidden">
                     <div class="flex items-center gap-3 overflow-hidden">
-                        <svg class="w-6 h-6 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <div class="overflow-hidden">
-                            <p id="fname" class="text-sm font-medium text-slate-700 truncate font-mono">filename.pdf</p>
-                            <p id="fsize" class="text-xs font-['IBM_Plex_Mono'] text-slate-500">size · type</p>
+                            <p id="fname" class="text-xs font-bold text-slate-700 truncate font-mono">filename.pdf</p>
+                            <p id="fsize" class="text-[10px] font-['IBM_Plex_Mono'] text-slate-500">0 KB</p>
                         </div>
                     </div>
                     <button id="fremove" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Remove file">
@@ -85,137 +161,304 @@
                 </div>
 
                 <!-- Error Box -->
-                <div id="errorBox" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm fade-in hidden"></div>
+                <div id="errorBox" class="bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg text-xs fade-in hidden"></div>
 
                 <!-- Action Button -->
-                <button id="translateBtn" disabled class="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-['Oswald'] uppercase tracking-widest text-sm font-bold py-3.5 rounded-lg transition-colors flex justify-center items-center gap-2">
+                <button id="translateBtn" disabled class="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-['Oswald'] uppercase tracking-widest text-sm font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 shadow">
                     <span id="translateBtnText">Translate Document</span>
                     <svg id="translateSpinner" class="animate-spin h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 </button>
 
                 <!-- Post Actions -->
-                <div id="postActions" class="hidden flex-col gap-3 fade-in mt-2 border-t border-slate-100 pt-5">
-                    <p class="text-xs text-slate-500 leading-relaxed mb-1">Please review and edit the fields on the right to ensure all names, addresses, and remarks are perfectly aligned with the original document.</p>
-                    <button id="downloadBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-['Oswald'] uppercase tracking-widest text-sm font-bold py-3.5 rounded-lg transition-colors shadow-md flex justify-center items-center gap-2">
-                        Download Final PDF
+                <div id="postActions" class="hidden flex-col gap-3 fade-in border-t border-slate-100 pt-4">
+                    <div class="bg-slate-50 border border-slate-200 rounded p-2.5 text-[11px] text-slate-600 leading-normal">
+                        <strong>Translation Active:</strong> You can edit any field directly on the right before exporting. Double-check addresses and numeric codes.
+                    </div>
+                    <button id="downloadBtn" class="w-full bg-slate-900 hover:bg-slate-850 text-white font-['Oswald'] uppercase tracking-widest text-sm font-bold py-3.5 rounded-lg transition-colors shadow-lg flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Download PDF Document
                     </button>
-                    <button id="resetBtn" class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-['Oswald'] uppercase tracking-widest text-sm font-bold py-3 rounded-lg transition-colors">
-                        Start Over
+                    <button id="resetBtn" class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-['Oswald'] uppercase tracking-wider text-xs font-bold py-2 rounded-lg transition-colors">
+                        Clear &amp; Start Over
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Right Panel: Certificate Preview -->
+        <!-- Right Panel: Certificate Form Sheet -->
         <section class="xl:col-span-8 overflow-x-auto pb-8">
-            <div id="certSheet" class="cert-preview mx-auto relative transition-opacity duration-300 opacity-50">
+            <div id="certSheet" class="cert-preview mx-auto relative transition-opacity duration-300 opacity-80">
                 
-                <!-- Header part -->
+                <!-- Certificate Meta Info -->
                 <div class="flex justify-between items-start mb-6">
                     <div class="space-y-1">
-                        <div class="flex items-center text-xs"><span class="w-36 font-bold text-slate-700">CERTIFICATE NO.</span> <input data-field="certificateNo" class="cert-input w-48 font-bold text-sm" value="—"></div>
-                        <div class="flex items-center text-xs"><span class="w-36 font-bold text-slate-700">REFERENCE NO.</span> <input data-field="referenceNo" class="cert-input w-48 font-bold text-sm" value="—"></div>
+                        <div class="flex items-center text-xs">
+                            <span class="w-36 font-bold text-slate-700">CERTIFICATE NO.</span> 
+                            <input data-field="certificateNo" class="cert-input w-48 font-bold text-sm" value="—">
+                        </div>
+                        <div class="flex items-center text-xs">
+                            <span class="w-36 font-bold text-slate-700">REFERENCE NO.</span> 
+                            <input data-field="referenceNo" class="cert-input w-48 font-bold text-sm" value="—">
+                        </div>
                     </div>
                 </div>
-                <div class="cert-title-font text-center text-2xl font-bold tracking-wider uppercase mb-8 text-black">
+
+                <!-- Document Header -->
+                <div class="cert-title-font text-center text-2xl font-bold tracking-widest uppercase mb-6 text-black border-b-2 border-black pb-2">
                     Export Certificate
                 </div>
 
-                <!-- Block 1 -->
+                <!-- Block 1: Basic Identifiers -->
                 <table class="cert-table">
-                    <tbody><tr>
-                        <td class="w-1/4"><span class="cert-label">Registration No.</span><input data-field="registrationNo" class="cert-input" value="—"></td>
-                        <td class="w-1/4"><span class="cert-label">Registration Date</span><input data-field="registrationDate" class="cert-input" value="—"></td>
-                        <td class="w-1/4"><span class="cert-label">First Reg. Date</span><input data-field="firstRegDate" class="cert-input" value="—"></td>
-                        <td class="w-1/4"><span class="cert-label">Maker's Serial Number</span><input data-field="makerSerialNumber" class="cert-input" value="—"></td>
-                    </tr>
-                </tbody></table>
+                    <tbody>
+                        <tr>
+                            <td class="w-1/4">
+                                <span class="cert-label">Registration No.</span>
+                                <input data-field="registrationNo" class="cert-input" value="—">
+                            </td>
+                            <td class="w-1/4">
+                                <span class="cert-label">Registration Date</span>
+                                <input data-field="registrationDate" class="cert-input" value="—">
+                            </td>
+                            <td class="w-1/4">
+                                <span class="cert-label">First Reg. Date</span>
+                                <input data-field="firstRegDate" class="cert-input" value="—">
+                            </td>
+                            <td class="w-1/4">
+                                <span class="cert-label">Maker's Serial Number</span>
+                                <input data-field="makerSerialNumber" class="cert-input" value="—">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <!-- Block 2 -->
+                <!-- Block 2: Brand/Model/Engine -->
                 <table class="cert-table no-border-top">
-                    <tbody><tr>
-                        <td class="w-1/3"><span class="cert-label">Trademark of the Maker of the Vehicle</span>
-                            <div class="flex items-baseline justify-between"><input data-field="trademark" class="cert-input" value="—"><input data-field="trademarkCode" class="cert-input text-right w-16 text-slate-500 font-normal"></div>
-                        </td>
-                        <td class="w-1/3"><span class="cert-label">Model</span><input data-field="model" class="cert-input" value="—"></td>
-                        <td class="w-1/3"><span class="cert-label">Engine Model</span><input data-field="engineModel" class="cert-input" value="—"></td>
-                    </tr>
-                </tbody></table>
+                    <tbody>
+                        <tr>
+                            <td class="w-1/3">
+                                <span class="cert-label">Trademark of the Maker of the Vehicle</span>
+                                <div class="flex items-baseline justify-between gap-1">
+                                    <input data-field="trademark" class="cert-input" value="—">
+                                    <input data-field="trademarkCode" class="cert-input text-right w-20 text-slate-600 font-bold" placeholder="[Code]">
+                                </div>
+                            </td>
+                            <td class="w-1/3">
+                                <span class="cert-label">Model</span>
+                                <input data-field="model" class="cert-input" value="—">
+                            </td>
+                            <td class="w-1/3">
+                                <span class="cert-label">Engine Model</span>
+                                <input data-field="engineModel" class="cert-input" value="—">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <!-- Block 3 -->
+                <!-- Block 3: Owner, User, Principal Abode -->
                 <table class="cert-table no-border-top">
-                    <tbody><tr><td><span class="cert-label">Name of Owner</span><input data-field="ownerName" class="cert-input" value="—"></td></tr>
-                    <tr><td><span class="cert-label">Address of Owner</span>
-                        <div class="flex items-baseline justify-between"><input data-field="ownerAddress" class="cert-input" value="—"><input data-field="ownerAddressCode" class="cert-input text-right w-24 text-slate-500 font-normal"></div>
-                    </td></tr>
-                    <tr><td><span class="cert-label">Name of User</span><input data-field="userName" class="cert-input" value="—"></td></tr>
-                    <tr><td><span class="cert-label">Address of User</span><input data-field="userAddress" class="cert-input" value="—"></td></tr>
-                    <tr><td><span class="cert-label">Locality of Principle Abode of Use</span><input data-field="localityOfUse" class="cert-input" value="—"></td></tr>
-                </tbody></table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="cert-label">Name of Owner</span>
+                                <input data-field="ownerName" class="cert-input" value="—">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cert-label">Address of Owner</span>
+                                <div class="flex items-baseline justify-between gap-2">
+                                    <input data-field="ownerAddress" class="cert-input" value="—">
+                                    <input data-field="ownerAddressCode" class="cert-input text-right w-24 text-slate-600 font-bold" placeholder="[Code]">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cert-label">Name of User</span>
+                                <input data-field="userName" class="cert-input" value="—">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cert-label">Address of User</span>
+                                <input data-field="userAddress" class="cert-input" value="—">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cert-label">Locality of Principle Abode of Use</span>
+                                <input data-field="localityOfUse" class="cert-input" value="—">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <!-- Block 4 -->
+                <!-- Block 4: Classifications & Weights -->
                 <table class="cert-table no-border-top">
-                    <tbody><tr>
-                        <td class="w-[15%]"><span class="cert-label">Classification of Vehicle</span><input data-field="classificationOfVehicle" class="cert-input" value="—"></td>
-                        <td class="w-[10%]"><span class="cert-label">Use</span><input data-field="use" class="cert-input" value="—"></td>
-                        <td class="w-[10%]"><span class="cert-label">Purpose</span><input data-field="purpose" class="cert-input" value="—"></td>
-                        <td class="w-[15%]"><span class="cert-label">Type of Body</span>
-                            <div class="flex items-baseline justify-between"><input data-field="typeOfBody" class="cert-input" value="—"><input data-field="typeOfBodyCode" class="cert-input w-12 text-right text-slate-500 font-normal"></div>
-                        </td>
-                        <td class="w-[10%]"><span class="cert-label">Fixed Number</span><input data-field="fixedNumber" class="cert-input" value="—"></td>
-                        <td class="w-[13%]"><span class="cert-label">Maxim. Carry</span><div class="flex items-baseline"><input data-field="maximCarry" class="cert-input" value="—"><span class="text-[9px] ml-1 text-slate-500 font-semibold shrink-0">KG</span></div></td>
-                        <td class="w-[13%]"><span class="cert-label">Weight</span><div class="flex items-baseline"><input data-field="weight" class="cert-input" value="—"><span class="text-[9px] ml-1 text-slate-500 font-semibold shrink-0">KG</span></div></td>
-                        <td class="w-[14%]"><span class="cert-label">Gross Weight</span><div class="flex items-baseline"><input data-field="grossWeight" class="cert-input" value="—"><span class="text-[9px] ml-1 text-slate-500 font-semibold shrink-0">KG</span></div></td>
-                    </tr>
-                </tbody></table>
+                    <tbody>
+                        <tr>
+                            <td class="w-[16%]">
+                                <span class="cert-label">Classification of Vehicle</span>
+                                <input data-field="classificationOfVehicle" class="cert-input" value="—">
+                            </td>
+                            <td class="w-[10%]">
+                                <span class="cert-label">Use</span>
+                                <input data-field="use" class="cert-input" value="—">
+                            </td>
+                            <td class="w-[10%]">
+                                <span class="cert-label">Purpose</span>
+                                <input data-field="purpose" class="cert-input" value="—">
+                            </td>
+                            <td class="w-[16%]">
+                                <span class="cert-label">Type of Body</span>
+                                <div class="flex items-baseline justify-between gap-1">
+                                    <input data-field="typeOfBody" class="cert-input" value="—">
+                                    <input data-field="typeOfBodyCode" class="cert-input w-16 text-right text-slate-600 font-bold" placeholder="[Code]">
+                                </div>
+                            </td>
+                            <td class="w-[10%]">
+                                <span class="cert-label">Fixed Number</span>
+                                <input data-field="fixedNumber" class="cert-input" value="—">
+                            </td>
+                            <td class="w-[12%]">
+                                <span class="cert-label">Maxim. Carry</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="maximCarry" class="cert-input" value="—">
+                                    <span class="text-[8px] ml-1 text-slate-500 font-bold shrink-0">KG</span>
+                                </div>
+                            </td>
+                            <td class="w-[13%]">
+                                <span class="cert-label">Weight</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="weight" class="cert-input" value="—">
+                                    <span class="text-[8px] ml-1 text-slate-500 font-bold shrink-0">KG</span>
+                                </div>
+                            </td>
+                            <td class="w-[13%]">
+                                <span class="cert-label">Gross Weight</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="grossWeight" class="cert-input" value="—">
+                                    <span class="text-[8px] ml-1 text-slate-500 font-bold shrink-0">KG</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <!-- Block 5 -->
+                <!-- Block 5: Technical Details -->
                 <table class="cert-table no-border-top">
-                    <tbody><tr>
-                        <td class="w-[11%]"><span class="cert-label">Engine Capacity</span><div class="flex items-baseline"><input data-field="engineCapacity" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">KW.L</span></div></td>
-                        <td class="w-[13%]"><span class="cert-label">Classification of Fuel</span><input data-field="classificationOfFuel" class="cert-input" value="—"></td>
-                        <td class="w-[12%]"><span class="cert-label">Specification No.</span><input data-field="specificationNo" class="cert-input" value="—"></td>
-                        <td class="w-[12%]"><span class="cert-label">Classification No.</span><input data-field="classificationNo" class="cert-input" value="—"></td>
-                        <td class="w-[8%]"><span class="cert-label">Length</span><div class="flex items-baseline"><input data-field="length" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">CM</span></div></td>
-                        <td class="w-[8%]"><span class="cert-label">Width</span><div class="flex items-baseline"><input data-field="width" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">CM</span></div></td>
-                        <td class="w-[8%]"><span class="cert-label">Height</span><div class="flex items-baseline"><input data-field="height" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">CM</span></div></td>
-                        <td class="w-[7%]"><span class="cert-label">FF Weight</span><div class="flex items-baseline"><input data-field="ffWeight" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">KG</span></div></td>
-                        <td class="w-[7%]"><span class="cert-label">FR Weight</span><div class="flex items-baseline"><input data-field="frWeight" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">KG</span></div></td>
-                        <td class="w-[7%]"><span class="cert-label">RF Weight</span><div class="flex items-baseline"><input data-field="rfWeight" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">KG</span></div></td>
-                        <td class="w-[7%]"><span class="cert-label">RR Weight</span><div class="flex items-baseline"><input data-field="rrWeight" class="cert-input" value="—"><span class="text-[8px] ml-1 text-slate-500 font-semibold shrink-0">KG</span></div></td>
-                    </tr>
-                </tbody></table>
+                    <tbody>
+                        <tr>
+                            <td class="w-[13%]">
+                                <span class="cert-label">Engine Capacity</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="engineCapacity" class="cert-input" value="—">
+                                    <span class="text-[7.5px] ml-1 text-slate-500 font-bold shrink-0">KW.L</span>
+                                </div>
+                            </td>
+                            <td class="w-[13%]">
+                                <span class="cert-label">Classification of Fuel</span>
+                                <input data-field="classificationOfFuel" class="cert-input" value="—">
+                            </td>
+                            <td class="w-[12%]">
+                                <span class="cert-label">Specification No.</span>
+                                <input data-field="specificationNo" class="cert-input" value="—">
+                            </td>
+                            <td class="w-[12%]">
+                                <span class="cert-label">Classification No.</span>
+                                <input data-field="classificationNo" class="cert-input" value="—">
+                            </td>
+                            <td class="w-[8%]">
+                                <span class="cert-label">Length</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="length" class="cert-input" value="—">
+                                    <span class="text-[7.5px] ml-1 text-slate-500 font-bold shrink-0">CM</span>
+                                </div>
+                            </td>
+                            <td class="w-[8%]">
+                                <span class="cert-label">Width</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="width" class="cert-input" value="—">
+                                    <span class="text-[7.5px] ml-1 text-slate-500 font-bold shrink-0">CM</span>
+                                </div>
+                            </td>
+                            <td class="w-[8%]">
+                                <span class="cert-label">Height</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="height" class="cert-input" value="—">
+                                    <span class="text-[7.5px] ml-1 text-slate-500 font-bold shrink-0">CM</span>
+                                </div>
+                            </td>
+                            <td class="w-[6.5%]">
+                                <span class="cert-label">FF Weight</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="ffWeight" class="cert-input" value="—">
+                                    <span class="text-[7px] ml-1 text-slate-500 font-bold shrink-0">KG</span>
+                                </div>
+                            </td>
+                            <td class="w-[6.5%]">
+                                <span class="cert-label">FR Weight</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="frWeight" class="cert-input" value="—">
+                                    <span class="text-[7px] ml-1 text-slate-500 font-bold shrink-0">KG</span>
+                                </div>
+                            </td>
+                            <td class="w-[6.5%]">
+                                <span class="cert-label">RF Weight</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="rfWeight" class="cert-input" value="—">
+                                    <span class="text-[7px] ml-1 text-slate-500 font-bold shrink-0">KG</span>
+                                </div>
+                            </td>
+                            <td class="w-[6.5%]">
+                                <span class="cert-label">RR Weight</span>
+                                <div class="flex items-baseline">
+                                    <input data-field="rrWeight" class="cert-input" value="—">
+                                    <span class="text-[7px] ml-1 text-slate-500 font-bold shrink-0">KG</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <!-- Block 6 -->
+                <!-- Block 6: Dates -->
                 <table class="cert-table no-border-top">
-                    <tbody><tr>
-                        <td class="w-1/3"><span class="cert-label">Export Scheduled Day</span><input data-field="exportScheduledDay" class="cert-input" value="—"></td>
-                        <td class="w-2/3"></td>
-                    </tr>
-                </tbody></table>
+                    <tbody>
+                        <tr>
+                            <td class="w-1/3">
+                                <span class="cert-label">Export Scheduled Day</span>
+                                <input data-field="exportScheduledDay" class="cert-input" value="—">
+                            </td>
+                            <td class="w-2/3 bg-slate-50/50"></td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <!-- Remarks -->
-                <table class="cert-table no-border-top h-48">
-                    <tbody><tr>
-                        <td class="h-full">
-                            <span class="cert-label mb-2">Remarks</span>
-                            <textarea data-field="remarks" class="w-full h-40 bg-transparent border-none outline-none resize-none font-inherit text-sm font-bold leading-relaxed text-black focus:bg-yellow-200">—</textarea>
-                        </td>
-                    </tr>
-                </tbody></table>
+                <!-- Remarks Text Box -->
+                <table class="cert-table no-border-top">
+                    <tbody>
+                        <tr>
+                            <td class="p-4">
+                                <span class="cert-label mb-2 text-xs">Remarks</span>
+                                <textarea data-field="remarks" class="w-full h-56 bg-transparent border-none outline-none resize-none font-mono text-[11.5px] font-bold leading-relaxed text-black focus:bg-yellow-50" placeholder="[Extra Notes &amp; Legal Notices]">—</textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <!-- Footer Signatures -->
-                <div class="flex justify-between items-end mt-8 text-[11px] leading-tight">
+                <!-- Footer and Director Seal Area -->
+                <div class="flex justify-between items-end mt-10 text-[11px] leading-relaxed">
                     <div class="font-bold flex items-center gap-2">
-                        DATE: <input data-field="certificateDate" class="cert-input w-32 border-b border-black text-sm" value="—">
+                        DATE: <input data-field="certificateDate" class="cert-input w-40 border-b border-black text-sm text-center font-bold" value="—">
                     </div>
-                    <div class="text-center text-[10px] text-slate-600 px-4">
+                    <div class="text-center text-[10px] text-slate-700 max-w-[420px] font-sans font-medium px-4">
                         Director-General of the District Transport Bureau or<br>
                         Director-General of the Transport Branch of the District Transport Bureau,<br>
                         Ministry of Land, Infrastructure, Transport and Tourism, Japan
                     </div>
                     <div class="text-right">
-                        <input data-field="issuingOffice" class="cert-input text-right w-56 border-b border-black text-sm" value="—">
+                        <input data-field="issuingOffice" class="cert-input text-right w-64 border-b border-black text-sm font-bold" value="—" placeholder="Issuing Office Name">
                     </div>
                 </div>
 
@@ -224,8 +467,8 @@
 
     </main>
 
-<script>
-    // Setup PDF.js worker for client-side PDF rendering
+    <script>
+    // Setup PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     const dropzone = document.getElementById('dropzone');
@@ -242,8 +485,98 @@
     const resetBtn = document.getElementById('resetBtn');
     const downloadBtn = document.getElementById('downloadBtn');
     const certSheet = document.getElementById('certSheet');
+    const demoBtnA = document.getElementById('demoBtnA');
+    const demoBtnB = document.getElementById('demoBtnB');
     
     let currentFile = null;
+
+    // High fidelity test dataset A (Standard sample layout)
+    const DEMO_DATA_A = {
+        "certificateNo": "02081",
+        "referenceNo": "3541813991891000",
+        "registrationNo": "Iseshima 399 Te 9100",
+        "registrationDate": "02 Apr, 2026",
+        "firstRegDate": "Jan, 2016",
+        "makerSerialNumber": "WVWZZZAUZGW026092",
+        "trademark": "VOLKSWAGEN",
+        "trademarkCode": "[791]",
+        "model": "DBA-AUCJZ",
+        "engineModel": "CJZ",
+        "ownerName": "NAC Co., Ltd",
+        "ownerAddress": "2-19-42 Kawasaki, Ise-city, Mie-pref.",
+        "ownerAddressCode": "[58941]",
+        "userName": "***",
+        "userAddress": "***",
+        "localityOfUse": "***",
+        "classificationOfVehicle": "MEDIUM",
+        "use": "PASSENGER",
+        "purpose": "PRIVATE",
+        "typeOfBody": "SEDAN",
+        "typeOfBodyCode": "[001]",
+        "fixedNumber": "5",
+        "maximCarry": "—",
+        "weight": "1240",
+        "grossWeight": "1515",
+        "engineCapacity": "1.19",
+        "classificationOfFuel": "PETROL",
+        "specificationNo": "17548",
+        "classificationNo": "0241",
+        "length": "426",
+        "width": "180",
+        "height": "148",
+        "ffWeight": "770",
+        "frWeight": "—",
+        "rfWeight": "—",
+        "rrWeight": "470",
+        "exportScheduledDay": "02 Aug, 2026",
+        "remarks": `[MIE], TEMPORARY DE-REGISTRATION FOR EXPORT\nIN THE CASE THAT THE EXPORT SCHEDULED DAY EXPIRES BEFORE THE\nVEHICLE IS EXPORTED, THE OWNER WHO APPLIED THE TEMPORARY\nDE-REGISTRATION HAS TO RETURN THIS CERTIFICATE TO THE CLOSEST\nTRANSPORT BRANCH OFFICE WITHIN 15 DAYS AFTER EXPIRY OF THE EXPORT\nSCHEDULED DAY.\n[Mileage] 92,100 KM (21 Jan. 2025)\n[Old Mileage] 73,600 KM (6 Jan. 2023)\n[OLD REG., NO.] Toyohashi 334 Yu 303\nTO BE CONCLUDED`,
+        "certificateDate": "02 Apr, 2026",
+        "issuingOffice": "Mie Transport Bureau Chief"
+    };
+
+    // High fidelity test dataset B matching the exact image_c6827c.png visual elements (Nobuco Japan)
+    const DEMO_DATA_B = {
+        "certificateNo": "02102",
+        "referenceNo": "3541813991892000",
+        "registrationNo": "599 Se 2980",
+        "registrationDate": "10 Nov, 2026",
+        "firstRegDate": "Jan, 2016",
+        "makerSerialNumber": "WVWZZZAUZGW026092",
+        "trademark": "Volkswagen",
+        "trademarkCode": "[791]",
+        "model": "DBA-AUCJZ",
+        "engineModel": "CJZ",
+        "ownerName": "Nobuco Japan Co., Ltd.",
+        "ownerAddress": "2-19-42, Kawazaki, Ise-shi, Mie",
+        "ownerAddressCode": "[58941]",
+        "userName": "—",
+        "userAddress": "—",
+        "localityOfUse": "—",
+        "classificationOfVehicle": "MEDIUM",
+        "use": "PASSENGER",
+        "purpose": "PRIVATE",
+        "typeOfBody": "SEDAN",
+        "typeOfBodyCode": "[001]",
+        "fixedNumber": "5",
+        "maximCarry": "—",
+        "weight": "1240",
+        "grossWeight": "1515",
+        "engineCapacity": "1.19",
+        "classificationOfFuel": "PETROL",
+        "specificationNo": "17548",
+        "classificationNo": "0241",
+        "length": "426",
+        "width": "180",
+        "height": "148",
+        "ffWeight": "770",
+        "frWeight": "—",
+        "rfWeight": "—",
+        "rrWeight": "470",
+        "exportScheduledDay": "10 May, 2027",
+        "remarks": `[MIE], TEMPORARY DE-REGISTRATION FOR EXPORT\nIN THE CASE THAT THE EXPORT SCHEDULED DAY EXPIRES BEFORE THE\nVEHICLE IS EXPORTED, THE OWNER WHO APPLIED THE TEMPORARY\nDE-REGISTRATION HAS TO RETURN THIS CERTIFICATE TO THE CLOSEST\nTRANSPORT BRANCH OFFICE WITHIN 15 DAYS AFTER EXPIRY OF THE EXPORT\nSCHEDULED DAY.\n[Mileage] 92,100 KM (21 Jan. 2025)\n[Old Mileage] 73,600 KM (6 Jan. 2023)\nTO BE CONCLUDED`,
+        "certificateDate": "10 Nov, 2026",
+        "issuingOffice": "Mie Transport Bureau Chief"
+    };
 
     function humanSize(bytes) {
         if(bytes < 1024) return bytes + ' B';
@@ -262,11 +595,16 @@
     }
 
     dropzone.addEventListener('click', () => fileInput.click());
-    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('border-amber-500', 'bg-amber-50'); });
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-amber-500', 'bg-amber-50'));
+    dropzone.addEventListener('dragover', e => { 
+        e.preventDefault(); 
+        dropzone.classList.add('border-amber-500', 'bg-amber-50/40'); 
+    });
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('border-amber-500', 'bg-amber-50/40');
+    });
     dropzone.addEventListener('drop', e => {
         e.preventDefault();
-        dropzone.classList.remove('border-amber-500', 'bg-amber-50');
+        dropzone.classList.remove('border-amber-500', 'bg-amber-50/40');
         if(e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
     });
     
@@ -289,16 +627,16 @@
         clearError();
         const okTypes = ['application/pdf','image/png','image/jpeg','image/jpg'];
         if(!okTypes.includes(file.type)){
-            showError('Unsupported file type. Please upload a PDF, JPG or PNG.');
+            showError('Unsupported file format. Please load a PDF, JPG, or PNG.');
             return;
         }
         if(file.size > 15 * 1024 * 1024){
-            showError('File is larger than 15MB.');
+            showError('File is too large (exceeds 15MB limit).');
             return;
         }
         currentFile = file;
         fname.textContent = file.name;
-        fsize.textContent = humanSize(file.size) + ' · ' + (file.type === 'application/pdf' ? 'PDF' : 'Image');
+        fsize.textContent = humanSize(file.size) + ' · ' + (file.type === 'application/pdf' ? 'PDF Document' : 'Image Asset');
         
         dropzone.classList.add('hidden');
         dropzone.classList.remove('flex');
@@ -307,63 +645,169 @@
         translateBtn.disabled = false;
     }
 
+    // Interactive Demo Loaders
+    demoBtnA.addEventListener('click', () => {
+        clearError();
+        populateFields(DEMO_DATA_A);
+        certSheet.classList.remove('opacity-50');
+        postActions.classList.remove('hidden');
+        postActions.classList.add('flex');
+        certSheet.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    demoBtnB.addEventListener('click', () => {
+        clearError();
+        populateFields(DEMO_DATA_B);
+        certSheet.classList.remove('opacity-50');
+        postActions.classList.remove('hidden');
+        postActions.classList.add('flex');
+        certSheet.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function populateFields(data) {
+        Object.keys(data).forEach(key => {
+            const el = document.querySelector(`[data-field="${key}"]`);
+            if(el) {
+                el.value = data[key] || '';
+            }
+        });
+    }
+
     async function getBase64Image(file) {
-        // Most free vision APIs (like Groq) only accept images.
-        // If the user uploaded a PDF, we use pdf.js to render the first page as an image.
         if (file.type === 'application/pdf') {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const page = await pdf.getPage(1);
             
-            // Render at higher scale for better OCR reading
-            const viewport = page.getViewport({ scale: 2.0 });
+            const viewport = page.getViewport({ scale: 2.2 });
             const canvas = document.createElement('canvas');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
             const ctx = canvas.getContext('2d');
             
             await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-            
-            // Get base64 string without the prefix
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             return dataUrl.split(',')[1];
         } else {
-            // It's already an image
             return new Promise((resolve, reject) => {
                 const r = new FileReader();
                 r.onload = () => resolve(r.result.split(',')[1]);
-                r.onerror = () => reject(new Error('Could not read file.'));
+                r.onerror = () => reject(new Error('Could not read image file.'));
                 r.readAsDataURL(file);
             });
         }
     }
 
-    const PROMPT = `You are an expert Japanese-to-English translator specializing in official Japanese vehicle Export Certificates (輸出抹消仮登録証明書) issued by MLIT.
-Read the attached document carefully and extract every field, translating all Japanese text into English.
-Rules:
-- Convert Japanese era dates to Gregorian calendar (Reiwa + 2018, Heisei + 1988, Showa + 1925). Format as "02 Apr, 2026".
-- Translate standard terms: 普通→MEDIUM, 小型→SMALL, 軽自動車→LIGHT, 乗用→PASSENGER, 貨物→CARGO, 自家用→PRIVATE, 事業用→COMMERCIAL, 箱型→SEDAN, ガソリン→PETROL, 軽油→DIESEL.
-- Romanize names and addresses into English (e.g. 三重県伊勢市河崎2丁目19-42 → "2-19-42 Kawasaki, Ise-city, Mie-pref.").
-- If masked with ***, output "***".
-- Keep reference codes like [791], [001] in their specific "*Code" field without brackets. If no code field exists, append them.
-- Fully translate the REMARKS (備考) section. Include all data (old mileage, temp de-registration notice, old reg numbers).
-- issuingOffice is the bureau chief title at bottom right (e.g. 三重運輸支局長 → "Mie Transport Bureau Chief").
-- Return empty string if missing.
+    const PROMPT = `You are a high-precision Japanese-to-English translator specializing in official Japanese Vehicle Export Certificates (輸出抹消仮登録証明書) issued by the Ministry of Land, Infrastructure, Transport and Tourism (MLIT), Japan.
+Analyze the attached certificate document thoroughly. Extract every data box carefully and populate them into English.
 
-Respond with ONLY a single valid JSON object containing exactly these string keys:
-{"certificateNo":"","referenceNo":"","registrationNo":"","registrationDate":"","firstRegDate":"","makerSerialNumber":"","trademark":"","trademarkCode":"","model":"","engineModel":"","ownerName":"","ownerAddress":"","ownerAddressCode":"","userName":"","userAddress":"","localityOfUse":"","classificationOfVehicle":"","use":"","purpose":"","typeOfBody":"","typeOfBodyCode":"","fixedNumber":"","maximCarry":"","weight":"","grossWeight":"","engineCapacity":"","classificationOfFuel":"","specificationNo":"","classificationNo":"","length":"","width":"","height":"","ffWeight":"","frWeight":"","rfWeight":"","rrWeight":"","exportScheduledDay":"","remarks":"","certificateDate":"","issuingOffice":""}`;
+CRITICAL TRANSLATION & ROMANIZATION DICTIONARY RULES:
+1. JAPANESE COMPANY SUFFIXES:
+   - "株式会社" -> "Co., Ltd." (or K.K.). E.g., "株式会社ノブコジャパン" MUST be translated as "Nobuco Japan Co., Ltd."
+   - "有限会社" -> "Ltd."
+   - "合同会社" -> "LLC"
+   - Translate all Kanji and Katakana names phonetically into clear English equivalents.
+
+2. HIRAGANA ROMANIZATION IN PLATE NUMBERS (REGISTRATION NO.):
+   - Convert Japanese Kanji prefixes and Hiragana license plate characters to standard Hepburn Romaji.
+   - E.g., "599せ2980" -> "599 Se 2980" (transliterating "せ" as "Se").
+   - E.g., "伊勢志摩 399 て 9100" -> "Iseshima 399 Te 9100" (transliterating "て" as "Te").
+
+3. DATE FORMATS (DATED CALENDAR MATCH):
+   - Convert Japanese eras (Reiwa, Heisei, Showa) directly into exact Gregorian calendar values.
+   - Format registrationDate and certificateDate precisely as: "DD MMM, YYYY" (e.g., "10 Nov, 2026").
+   - Format firstRegDate precisely as: "MMM, YYYY" (e.g., "Jan, 2016").
+   
+4. CODE BRACKETING FORMAT (CRITICAL FOR VALIDITY):
+   - Wrap the numeric code elements in square brackets, exactly like your English layout.
+   - trademarkCode -> e.g., "[791]"
+   - ownerAddressCode -> e.g., "[58941]"
+   - typeOfBodyCode -> e.g., "[001]"
+
+5. VOCABULARY MAPPINGS (MLIT REGISTERED PATTERN):
+   - Classifications: 普通 -> MEDIUM, 小型 -> SMALL, 軽自動車 -> LIGHT.
+   - Uses: 乗用 -> PASSENGER, 貨物 -> CARGO.
+   - Purposes: 自家車/自家用 -> PRIVATE, 事業用 -> COMMERCIAL.
+   - Body types: 箱型 -> SEDAN, etc.
+   - Fuel: ガソリン -> PETROL, 軽油 -> DIESEL.
+
+6. MISSING & MASKED DATA:
+   - If a field is blank or empty, output "—".
+   - If a field contains asterisks or is masked (e.g., ***), output "***".
+
+7. REMARKS (備考) SECTION COMPOSITION (MANDATORY PATTERN):
+   - Identify the prefectural registration prefix (e.g. 三重 -> [MIE], 豊橋 -> [TOYOHASHI]) and start the remarks block with: "[PREFIX-NAME], TEMPORARY DE-REGISTRATION FOR EXPORT"
+   - Include this standard legal notice exactly, in all caps, with appropriate linebreaks:
+     "IN THE CASE THAT THE EXPORT SCHEDULED DAY EXPIRES BEFORE THE
+     VEHICLE IS EXPORTED, THE OWNER WHO APPLIED THE TEMPORARY
+     DE-REGISTRATION HAS TO RETURN THIS CERTIFICATE TO THE CLOSEST
+     TRANSPORT BRANCH OFFICE WITHIN 15 DAYS AFTER EXPIRY OF THE EXPORT
+     SCHEDULED DAY."
+   - Extract past and current mileage patterns exactly:
+     "[Mileage] XX,XXX KM (DD MMM. YYYY)"
+     "[Old Mileage] XX,XXX KM (DD MMM. YYYY)"
+   - Extract old registration numbers:
+     "[OLD REG., NO.] Region XXX Character XXX"
+   - Ensure the Remarks section concludes with the exact phrase: "TO BE CONCLUDED"
+
+8. ISSUING OFFICE:
+   - Translate the authority title at the bottom right exactly (e.g. 三重運輸支局長 -> "Mie Transport Bureau Chief").
+
+Response Output Constraints:
+You must return ONLY a single valid JSON object. No explanations, no markdown decorators, no text before or after.
+JSON keys must be identical to this schema:
+{
+  "certificateNo": "",
+  "referenceNo": "",
+  "registrationNo": "",
+  "registrationDate": "",
+  "firstRegDate": "",
+  "makerSerialNumber": "",
+  "trademark": "",
+  "trademarkCode": "",
+  "model": "",
+  "engineModel": "",
+  "ownerName": "",
+  "ownerAddress": "",
+  "ownerAddressCode": "",
+  "userName": "",
+  "userAddress": "",
+  "localityOfUse": "",
+  "classificationOfVehicle": "",
+  "use": "",
+  "purpose": "",
+  "typeOfBody": "",
+  "typeOfBodyCode": "",
+  "fixedNumber": "",
+  "maximCarry": "",
+  "weight": "",
+  "grossWeight": "",
+  "engineCapacity": "",
+  "classificationOfFuel": "",
+  "specificationNo": "",
+  "classificationNo": "",
+  "length": "",
+  "width": "",
+  "height": "",
+  "ffWeight": "",
+  "frWeight": "",
+  "rfWeight": "",
+  "rrWeight": "",
+  "exportScheduledDay": "",
+  "remarks": "",
+  "certificateDate": "",
+  "issuingOffice": ""
+}`;
 
     translateBtn.addEventListener('click', async () => {
         clearError();
         translateBtn.disabled = true;
-        translateBtnText.textContent = 'Processing Image & Translating...';
+        translateBtnText.textContent = 'Analyzing Layout & Extracting...';
         translateSpinner.classList.remove('hidden');
 
         try {
-            // Get image (Handles both raw images and PDF conversion)
             const base64Data = await getBase64Image(currentFile);
             
-            // GROQ API configuration (Free API)
             const apiKey = "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";
             const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -378,7 +822,7 @@ Respond with ONLY a single valid JSON object containing exactly these string key
                         ]
                     }
                 ],
-                temperature: 0.1,
+                temperature: 0.05, // Extremely low temperature to enforce deterministic literal translations
                 response_format: { type: "json_object" }
             };
 
@@ -393,35 +837,35 @@ Respond with ONLY a single valid JSON object containing exactly these string key
 
             if(!response.ok) {
                 const errData = await response.json();
-                throw new Error(errData.error?.message || 'API Error');
+                throw new Error(errData.error?.message || 'API Communication Error.');
             }
 
             const data = await response.json();
             const rawText = data.choices[0].message.content;
-            const parsed = JSON.parse(rawText);
+            
+            let cleanText = rawText.trim();
+            if (cleanText.startsWith('```')) {
+                cleanText = cleanText.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+            }
 
-            // Populate the UI
-            Object.keys(parsed).forEach(key => {
-                const el = document.querySelector(`[data-field="${key}"]`);
-                if(el) el.value = parsed[key] || '';
-            });
+            const parsed = JSON.parse(cleanText);
 
-            // Reveal the certificate
+            // Populate document structure
+            populateFields(parsed);
+
+            // Activate layout
             certSheet.classList.remove('opacity-50');
             translateBtn.classList.add('hidden');
             postActions.classList.remove('hidden');
             postActions.classList.add('flex');
 
         } catch (err) {
-            console.error("Translation Error:", err);
+            console.error("Translation Pipeline Error:", err);
             let msg;
             if (err instanceof TypeError && /fetch/i.test(err.message)) {
-                // This fires when the request never got a response at all —
-                // almost always an invalid/expired API key (Groq omits CORS
-                // headers on error responses), an ad-blocker, or no internet.
-                msg = 'Could not reach the translation service. This usually means the API key is invalid or expired — get a fresh key at console.groq.com — or an ad-blocker/network is blocking api.groq.com.';
+                msg = 'Could not reach the translation engine. Please check your internet connection or verify api.groq.com access.';
             } else {
-                msg = err.message || 'Translation failed. Please ensure the document is readable and try again.';
+                msg = err.message || 'Data extraction failed. Please ensure the document is clear and readable.';
             }
             showError(msg);
             translateBtn.disabled = false;
@@ -433,31 +877,34 @@ Respond with ONLY a single valid JSON object containing exactly these string key
 
     resetBtn.addEventListener('click', () => location.reload());
 
-    // Ultimate fix for vertically clipped text AND bottom overflow in html2canvas PDFs
+    // High-accuracy PDF download engine (converts inputs and preserves exact alignment layout)
     downloadBtn.addEventListener('click', async () => {
         downloadBtn.disabled = true;
         const originalContent = downloadBtn.innerHTML;
-        downloadBtn.innerHTML = 'Generating PDF...';
+        downloadBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 text-white inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            Generating Document PDF...`;
 
         try {
-            // 1. Create an exact clone of the certificate sheet
+            // Create target clone for rendering
             const clone = certSheet.cloneNode(true);
             
-            // 2. Position the clone completely off-screen
+            // Secure absolute positioning for headless render
             clone.style.position = 'absolute';
             clone.style.left = '-9999px';
             clone.style.top = '0';
             clone.style.width = certSheet.offsetWidth + 'px';
             clone.style.background = '#ffffff';
             clone.style.opacity = '1';
+            clone.style.borderRadius = '0px';
+            clone.style.boxShadow = 'none';
             document.body.appendChild(clone);
 
-            // 3. Swap every <input> in the clone with standard flat <span> text nodes
+            // Replace interactive fields with strict text nodes
             const originalInputs = certSheet.querySelectorAll('input');
             const clonedInputs = clone.querySelectorAll('input');
             clonedInputs.forEach((inputEl, idx) => {
                 const val = originalInputs[idx].value || '';
-                
                 const span = document.createElement('span');
                 span.textContent = val === '' ? '—' : val;
                 
@@ -468,20 +915,19 @@ Respond with ONLY a single valid JSON object containing exactly these string key
                 span.style.border = 'none';
                 span.style.background = 'transparent';
                 span.style.color = '#000000';
-                span.style.fontWeight = 'bold';
-                span.style.fontSize = window.getComputedStyle(inputEl).fontSize || '13px';
-                span.style.lineHeight = '1.2';
+                span.style.fontWeight = '700';
+                span.style.fontSize = window.getComputedStyle(inputEl).fontSize || '11px';
+                span.style.lineHeight = '1.3';
                 span.style.verticalAlign = 'baseline';
                 
                 inputEl.parentNode.replaceChild(span, inputEl);
             });
 
-            // 4. Swap every <textarea> in the clone with standard pre-wrap <div> nodes
+            // Replace interactive textareas with styled text blocks
             const originalTextareas = certSheet.querySelectorAll('textarea');
             const clonedTextareas = clone.querySelectorAll('textarea');
             clonedTextareas.forEach((textareaEl, idx) => {
                 const val = originalTextareas[idx].value || '';
-                
                 const div = document.createElement('div');
                 div.textContent = val === '' ? '—' : val;
                 
@@ -494,18 +940,18 @@ Respond with ONLY a single valid JSON object containing exactly these string key
                 div.style.border = 'none';
                 div.style.background = 'transparent';
                 div.style.color = '#000000';
-                div.style.fontWeight = 'bold';
-                div.style.fontSize = '12px';
-                div.style.lineHeight = '1.6';
+                div.style.fontWeight = '700';
+                div.style.fontSize = '11px';
+                div.style.lineHeight = '1.5';
                 div.style.height = 'auto';
                 
                 textareaEl.parentNode.replaceChild(div, textareaEl);
             });
 
-            // Allow the DOM to settle briefly
-            await new Promise(resolve => setTimeout(resolve, 80));
+            // Brief delay to allow content to stabilize
+            await new Promise(resolve => setTimeout(resolve, 150));
 
-            // 5. Run html2canvas on our clean, input-free clone
+            // Capture high-res canvas
             const canvas = await html2canvas(clone, { 
                 scale: 2.5, 
                 backgroundColor: '#ffffff', 
@@ -513,10 +959,10 @@ Respond with ONLY a single valid JSON object containing exactly these string key
                 logging: false
             });
             
-            // Clean up by removing the clone from the DOM
+            // Clean up cloned structure
             document.body.removeChild(clone);
             
-            // 6. Generate the high-quality landscape PDF with PROPER scaling
+            // Generate standard landscape A4 PDF structure
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
@@ -524,7 +970,7 @@ Respond with ONLY a single valid JSON object containing exactly these string key
             const pageW = pdf.internal.pageSize.getWidth();
             const pageH = pdf.internal.pageSize.getHeight();
             
-            const padding = 20;
+            const padding = 25;
             const maxW = pageW - (padding * 2);
             const maxH = pageH - (padding * 2);
             
@@ -540,7 +986,7 @@ Respond with ONLY a single valid JSON object containing exactly these string key
             
             pdf.addImage(imgData, 'PNG', targetX, targetY, targetW, targetH);
             
-            let regNo = 'certificate';
+            let regNo = 'Certificate';
             const regInput = document.querySelector('[data-field="registrationNo"]');
             if (regInput && regInput.value && regInput.value !== '—') {
                 regNo = regInput.value.replace(/\s+/g, '_');
@@ -550,13 +996,13 @@ Respond with ONLY a single valid JSON object containing exactly these string key
 
         } catch (err) {
             console.error("PDF Generation Error:", err);
-            showError('Could not generate the PDF. Please try again.');
+            showError('Failed to compile PDF. Please verify form values and try again.');
         } finally {
             downloadBtn.disabled = false;
             downloadBtn.innerHTML = originalContent;
         }
     });
-</script>
+    </script>
 
 </body>
 </html>
