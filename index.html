@@ -679,7 +679,7 @@
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const page = await pdf.getPage(1);
             
-            const viewport = page.getViewport({ scale: 2.2 });
+            const viewport = page.getViewport({ scale: 3.0 });
             const canvas = document.createElement('canvas');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
@@ -753,10 +753,15 @@ CRITICAL TRANSLATION & ROMANIZATION DICTIONARY RULES:
 8. ISSUING OFFICE:
    - Translate the authority title at the bottom right exactly (e.g. 三重運輸支局長 -> "Mie Transport Bureau Chief").
 
+9. ZERO DATA LOSS POLICY (EXTREME IMPORTANCE):
+   - Do a step-by-step visual scan from top to bottom.
+   - You MUST NOT skip any fields. Carefully extract all technical specifications (Length, Width, Height, FF/FR/RF/RR Weights, Engine Capacity, Specification No., Classification No.).
+
 Response Output Constraints:
 You must return ONLY a single valid JSON object. No explanations, no markdown decorators, no text before or after.
 JSON keys must be identical to this schema:
 {
+  "_thinking_process": "Briefly scan and list the translated text found block by block BEFORE populating the keys. This ensures no data is missed.",
   "certificateNo": "",
   "referenceNo": "",
   "registrationNo": "",
@@ -812,6 +817,7 @@ JSON keys must be identical to this schema:
             const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
 
             const payload = {
+                // Updated to use the new recommended Llama 4 Scout Vision Model
                 model: "meta-llama/llama-4-scout-17b-16e-instruct",
                 messages: [
                     {
@@ -822,7 +828,7 @@ JSON keys must be identical to this schema:
                         ]
                     }
                 ],
-                temperature: 0.05, // Extremely low temperature to enforce deterministic literal translations
+                temperature: 0.0, // Forced 0 for maximum deterministic data extraction
                 response_format: { type: "json_object" }
             };
 
@@ -882,7 +888,7 @@ JSON keys must be identical to this schema:
         downloadBtn.disabled = true;
         const originalContent = downloadBtn.innerHTML;
         downloadBtn.innerHTML = `
-            <svg class="animate-spin h-4 w-4 text-white inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg class="animate-spin h-4 w-4 text-white inline mr-2" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             Generating Document PDF...`;
 
         try {
